@@ -1,0 +1,35 @@
+package main
+
+import "fmt"
+
+type user struct {
+	name  string
+	email string
+}
+type notifier interface {
+	notify()
+}
+func (u *user) notify() {
+	fmt.Printf("sending user email to %s<%s>\n", u.name, u.email)
+}
+
+type admin struct {
+	user
+	level string
+}
+
+func sendNotification(n notifier){
+	n.notify()
+}
+
+func main() {
+
+	ad := admin{user: user{name: "lyonru", email: "lyonru@163,.com"}, level: "super"}
+	ad.user.notify()
+	ad.notify()//内部提升,接受者还是user
+	//由于内部类型的提升,内部类型实现的接口会自动提升到外部类型。这意味着由于内部类型的
+	//实现,外部类型也同样实现了这个接口
+
+	//sendNotification(ad)  complie error  notify method has pornter receiver
+	sendNotification(&ad)
+}
