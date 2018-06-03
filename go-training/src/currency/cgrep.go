@@ -1,15 +1,15 @@
 package main
 
 import (
-	"runtime"
-	"os"
-	"fmt"
-	"path/filepath"
-	"regexp"
-	"log"
 	"bufio"
 	"bytes"
+	"fmt"
 	"io"
+	"log"
+	"os"
+	"path/filepath"
+	"regexp"
+	"runtime"
 )
 
 type Job struct {
@@ -66,7 +66,6 @@ func main() {
 	}
 }
 
-
 //regexp的实现线程安全的,可以在多个goroutine中共享
 func grep(lineRx *regexp.Regexp, filenames []string) {
 	jobs := make(chan Job, workers)
@@ -74,7 +73,7 @@ func grep(lineRx *regexp.Regexp, filenames []string) {
 	done := make(chan struct{}, workers)
 
 	go addJobs(jobs, filenames, results)
-	for i := 0; i < workers; i++ {  //启动和CPU核心数一样多的goroutine处理job
+	for i := 0; i < workers; i++ { //启动和CPU核心数一样多的goroutine处理job
 		go doJobs(done, lineRx, jobs)
 	}
 
@@ -82,7 +81,6 @@ func grep(lineRx *regexp.Regexp, filenames []string) {
 	processResults(results)           // Blocks until the work is done
 
 }
-
 
 //往jobs通道中增加工作
 func addJobs(jobs chan<- Job, filenames []string, results chan<- Result) {
@@ -97,6 +95,19 @@ func doJobs(done chan<- struct{}, lineRx *regexp.Regexp, jobs <-chan Job) {
 		job.Do(lineRx)
 	}
 	done <- struct{}{}
+}
+
+func awaitCompletion(done <-chan struct{}, results chan Result) {
+	for i := 0; i < workers; i++ {
+		<-done
+	}
+	close(results)
+}
+
+func processResults(results <-chan Result) {
+	for result := range results {
+		fmt.Printf("%s:%d:%s\n", result.filename, result.lino, result.line)
+	}
 }
 
 func commandLineFiles(files []string) []string {
@@ -122,17 +133,4 @@ func minimum(x int, ys ...int) int {
 	}
 
 	return x
-}
-
-func awaitCompletion(done <-chan struct{}, results chan Result) {
-	for i := 0; i < workers; i++ {
-		<-done
-	}
-	close(results)
-}
-
-func processResults(results <-chan Result) {
-	for result := range results {
-		fmt.Printf("%s:%d:%s\n", result.filename, result.lino, result.line)
-	}
 }
