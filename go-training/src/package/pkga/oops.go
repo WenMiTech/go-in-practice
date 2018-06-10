@@ -1,7 +1,11 @@
 package pkga
 
-import "fmt"
+import (
+	"fmt"
+	"package/pkgb"
+)
 
-func TestA (){
-fmt.Println("test a")
+func TestA() {
+	pkgb.FuncFromPkga()
+	fmt.Println("test a")
 }
