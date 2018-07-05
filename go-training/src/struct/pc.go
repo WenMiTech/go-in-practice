@@ -1,19 +1,30 @@
-package   main
+package main
 
 import (
-	"struct/department"
-	
 	"fmt"
+	"io"
+	"struct/department"
 )
 
-
-
-type  PC struct {
+type PC struct {
 	department.Department
 }
 
-func main(){
+type CPU struct {
+	BrandName string
+	Id        int
+	Cost      float64
+}
 
-	pc:=PC{}
+type Memory struct {
+	BrandName string
+	Id        int
+	Cost      float64
+}
+
+func main() {
+	io.Pipe(a
+	fmt.Println("hello")
+	pc := PC{}
 	fmt.Println(pc)
 }
